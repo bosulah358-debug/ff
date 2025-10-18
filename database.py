@@ -48,7 +48,7 @@ class Database:
         data = self._read()
         return data.get(str(chat_id), {}).get("message_counts", {}).get(str(user_id), 0)
 
-    # ✅ الدوال الإضافية
+    # ✅ الدوال الخاصة بالإدارة
     def is_owner(self, *args):
         """
         يتحقق إذا المستخدم هو صاحب البوت.
@@ -66,6 +66,38 @@ class Database:
                 continue
         return False
 
+    def is_admin(self, chat_id, user_id):
+        """
+        يتحقق إذا المستخدم أدمن في القروب.
+        يخزن الأدمنز في data.json تلقائيًا عند إضافتهم.
+        """
+        data = self._read()
+        chat = data.get(str(chat_id), {})
+        admins = chat.get("admins", [])
+        # لو المستخدم هو المالك نرجع True
+        if user_id == self.owner_id:
+            return True
+        return str(user_id) in admins
+
+    def add_admin(self, chat_id, user_id):
+        """يضيف المستخدم كأدمن"""
+        data = self._read()
+        chat = data.setdefault(str(chat_id), {})
+        admins = chat.setdefault("admins", [])
+        if str(user_id) not in admins:
+            admins.append(str(user_id))
+        self._write(data)
+
+    def remove_admin(self, chat_id, user_id):
+        """يحذف المستخدم من الأدمنز"""
+        data = self._read()
+        chat = data.get(str(chat_id), {})
+        admins = chat.get("admins", [])
+        if str(user_id) in admins:
+            admins.remove(str(user_id))
+        self._write(data)
+
+    # ✅ الردود المخصصة
     def get_custom_reply(self, chat_id, keyword):
         """يرجع رد مخصص حسب الكلمة"""
         data = self._read()
