@@ -48,12 +48,9 @@ class Database:
         data = self._read()
         return data.get(str(chat_id), {}).get("message_counts", {}).get(str(user_id), 0)
 
-    # ✅ الدوال الخاصة بالإدارة
+    # ✅ التحقق من المالك
     def is_owner(self, *args):
-        """
-        يتحقق إذا المستخدم هو صاحب البوت.
-        يقبل أي عدد من المعطيات حتى لو تم تمرير update أو message بالخطأ.
-        """
+        """يتحقق إذا المستخدم هو صاحب البوت"""
         for arg in args:
             try:
                 if isinstance(arg, int) and arg == self.owner_id:
@@ -66,21 +63,18 @@ class Database:
                 continue
         return False
 
+    # ✅ التحقق من الأدمنز
     def is_admin(self, chat_id, user_id):
-        """
-        يتحقق إذا المستخدم أدمن في القروب.
-        يخزن الأدمنز في data.json تلقائيًا عند إضافتهم.
-        """
+        """يتحقق إذا المستخدم أدمن"""
         data = self._read()
         chat = data.get(str(chat_id), {})
         admins = chat.get("admins", [])
-        # لو المستخدم هو المالك نرجع True
         if user_id == self.owner_id:
             return True
         return str(user_id) in admins
 
     def add_admin(self, chat_id, user_id):
-        """يضيف المستخدم كأدمن"""
+        """يضيف أدمن"""
         data = self._read()
         chat = data.setdefault(str(chat_id), {})
         admins = chat.setdefault("admins", [])
@@ -89,12 +83,40 @@ class Database:
         self._write(data)
 
     def remove_admin(self, chat_id, user_id):
-        """يحذف المستخدم من الأدمنز"""
+        """يحذف أدمن"""
         data = self._read()
         chat = data.get(str(chat_id), {})
         admins = chat.get("admins", [])
         if str(user_id) in admins:
             admins.remove(str(user_id))
+        self._write(data)
+
+    # ✅ التحقق من المميزين (VIP)
+    def is_vip(self, chat_id, user_id):
+        """يتحقق إذا المستخدم مميز (VIP)"""
+        data = self._read()
+        chat = data.get(str(chat_id), {})
+        vips = chat.get("vips", [])
+        if user_id == self.owner_id:
+            return True
+        return str(user_id) in vips
+
+    def add_vip(self, chat_id, user_id):
+        """يضيف مستخدم لقائمة المميزين"""
+        data = self._read()
+        chat = data.setdefault(str(chat_id), {})
+        vips = chat.setdefault("vips", [])
+        if str(user_id) not in vips:
+            vips.append(str(user_id))
+        self._write(data)
+
+    def remove_vip(self, chat_id, user_id):
+        """يحذف مستخدم من المميزين"""
+        data = self._read()
+        chat = data.get(str(chat_id), {})
+        vips = chat.get("vips", [])
+        if str(user_id) in vips:
+            vips.remove(str(user_id))
         self._write(data)
 
     # ✅ الردود المخصصة
