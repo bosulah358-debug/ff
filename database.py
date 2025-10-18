@@ -1,6 +1,5 @@
 
-# إعادة إنشاء ملف database.py بالكامل مع التعديلات الأخيرة
-database_code = """import json
+import json
 import os
 from datetime import datetime, timedelta
 
@@ -49,12 +48,12 @@ class Database:
         data = self._read()
         return data.get(str(chat_id), {}).get("message_counts", {}).get(str(user_id), 0)
 
-    # ✅ الدوال المفقودة
+    # ✅ الدوال الإضافية
     def is_owner(self, *args):
-        \"\"\"
+        """
         يتحقق إذا المستخدم هو صاحب البوت.
         يقبل أي عدد من المعطيات حتى لو تم تمرير update أو message بالخطأ.
-        \"\"\"
+        """
         for arg in args:
             try:
                 if isinstance(arg, int) and arg == self.owner_id:
@@ -68,23 +67,16 @@ class Database:
         return False
 
     def get_custom_reply(self, chat_id, keyword):
-        \"\"\"يرجع رد مخصص حسب الكلمة\"\"\"
+        """يرجع رد مخصص حسب الكلمة"""
         data = self._read()
         chat = data.get(str(chat_id), {})
         replies = chat.get("custom_replies", {})
         return replies.get(keyword)
 
     def set_custom_reply(self, chat_id, keyword, reply_text):
-        \"\"\"يحفظ رد مخصص\"\"\"
+        """يحفظ رد مخصص"""
         data = self._read()
         chat = data.setdefault(str(chat_id), {})
         replies = chat.setdefault("custom_replies", {})
         replies[keyword] = reply_text
         self._write(data)
-"""
-
-path = "/mnt/data/database.py"
-with open(path, "w", encoding="utf-8") as f:
-    f.write(database_code)
-
-path
